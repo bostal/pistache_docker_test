@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+
+  testserver:
+
+    image: testserver:latest
+    restart: always
+    ports:
+      - "9080:9080"
+    entrypoint: /opt/testserver/build/testserver
