@@ -1,15 +1,35 @@
-#include <pistache/endpoint.h>
+/*
+   Mathieu Stefani, 13 février 2016
+
+   Example of an hello world server
+*/
+
+
+#include "pistache/endpoint.h"
 
 using namespace Pistache;
 
-struct HelloHandler : public Http::Handler {
+class HelloHandler : public Http::Handler {
+public:
+
     HTTP_PROTOTYPE(HelloHandler)
 
-    void onRequest(const Http::Request& request, Http::ResponseWriter writer) {
-        writer.send(Http::Code::Ok, "Hello, World!");
+    void onRequest(const Http::Request& request, Http::ResponseWriter response) {
+        UNUSED(request);
+        response.send(Pistache::Http::Code::Ok, "Hello World\n");
     }
 };
 
 int main() {
-    Http::listenAndServe<HelloHandler>("*:9080");
+    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+    auto opts = Pistache::Http::Endpoint::options()
+        .threads(1)
+        .maxPayload(4096); /////////////////////////////////////////////////////
+
+    Http::Endpoint server(addr);
+    server.init(opts);
+    server.setHandler(Http::make_handler<HelloHandler>());
+    server.serve();
+
+    server.shutdown();
 }
